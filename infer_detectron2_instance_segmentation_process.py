@@ -202,23 +202,23 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         dataprocess.CTaskFactory.__init__(self)
         # Set process information as string here
         self.info.name = "infer_detectron2_instance_segmentation"
-        self.info.shortDescription = "your short description"
-        self.info.description = "your description"
+        self.info.shortDescription = "Infer Detectron2 instance segmentation models"
+        self.info.description = "Infer Detectron2 instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python"
         self.info.version = "1.0.0"
-        # self.info.iconPath = "your path to a specific icon"
-        self.info.authors = "algorithm author"
-        self.info.article = "title of associated research article"
-        self.info.journal = "publication journal"
-        self.info.year = 2021
-        self.info.license = "MIT License"
+        self.info.iconPath = "icons/detectron2.png"
+        self.info.authors = "Yuxin Wu, Alexander Kirillov, Francisco Massa, Wan-Yen Lo, Ross Girshick"
+        self.info.article = "Detectron2"
+        self.info.journal = ""
+        self.info.year = 2019
+        self.info.license = "Apache License 2.0"
         # URL of documentation
-        self.info.documentationLink = ""
+        self.info.documentationLink = "https://detectron2.readthedocs.io/en/latest/"
         # Code source repository
-        self.info.repository = ""
+        self.info.repository = "https://github.com/facebookresearch/detectron2"
         # Keywords used for search
-        self.info.keywords = "your,keywords,here"
+        self.info.keywords = "infer, detectron2, instance, segmentation"
 
     def create(self, param=None):
         # Create process object
