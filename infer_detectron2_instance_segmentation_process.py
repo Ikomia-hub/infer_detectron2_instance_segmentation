@@ -145,8 +145,11 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             classes = instances.pred_classes
             masks = instances.pred_masks
             nb_instance = 0
+            colors = [[0,0,0]]
+            np.random.seed(10)
             for box, score, cls, mask in zip(boxes, scores, classes, masks):
                 if score >= self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST:
+                    colors.append([int(c) for c in np.random.choice(range(256), size=3)])
                     nb_instance += 1
                     instance_seg[mask] = nb_instance
                     x1, y1, x2, y2 = box.numpy()
@@ -154,14 +157,14 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
                     w = float(x2 - x1)
                     h = float(y2 - y1)
                     prop_rect = core.GraphicsRectProperty()
-                    prop_rect.pen_color = [int(c) for c in np.random.choice(range(256), size=3)]
+                    prop_rect.pen_color = colors[-1]
                     graphics_box = graphics_output.addRectangle(float(x1), float(y1), w, h, prop_rect)
                     graphics_box.setCategory(self.class_names[cls])
                     # Label
                     name = self.class_names[int(cls)]
                     prop_text = core.GraphicsTextProperty()
                     prop_text.font_size = 8
-                    prop_text.color = prop_rect.pen_color
+                    prop_text.color = [c//2 for c in colors[-1]]
                     graphics_output.addText(name, float(x1), float(y1), prop_text)
                     # Object results
                     results = []
@@ -178,10 +181,6 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
                     results.append(confidence_data)
                     results.append(box_data)
                     numeric_output.addObjectMeasures(results)
-
-        np.random.seed(10)
-        colors = [[0, 0, 0]] + [[int(c) for c in color] for color in
-                                np.random.choice(range(256), size=(nb_instance, 3))]
         return instance_seg.cpu().numpy(), colors
 
         # Step progress bar:
