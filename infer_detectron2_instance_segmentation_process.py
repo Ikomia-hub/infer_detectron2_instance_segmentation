@@ -25,6 +25,8 @@ from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
 import numpy as np
 import torch
+import random
+
 
 # --------------------
 # - Class to handle the process parameters
@@ -39,7 +41,6 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.conf_thres = 0.5
         self.cuda = True if torch.cuda.is_available() else False
         self.update = False
-
 
     def setParamMap(self, param_map):
         # Set parameters values from Ikomia application
@@ -78,7 +79,6 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         self.addOutput(dataprocess.CImageIO())
         self.setOutputDataType(core.IODataType.IMAGE_LABEL, 4)
 
-
         # Create parameters class
         if param is None:
             self.setParam(InferDetectron2InstanceSegmentationParam())
@@ -95,7 +95,6 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         # Call beginTaskRun for initialization
         self.beginTaskRun()
         self.forwardInputImage(0, 1)
-
 
         # Get parameters :
         param = self.getParam()
@@ -116,7 +115,6 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         outpout_img = self.getOutput(1)
         graphics_output = self.getOutput(2)
         numeric_output = self.getOutput(3)
-        panoptic_out = self.getOutput(4)
         if input.isDataAvailable():
             img = input.getImage()
 
@@ -124,9 +122,10 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             graphics_output.setImageIndex(1)
             numeric_output.clearData()
 
-            instance_img,panoptic_img = self.infer(img,graphics_output,numeric_output)
+            instance_img, colors = self.infer(img, graphics_output, numeric_output)
+            self.setOutputColorMap(1, 0, colors)
+            self.forwardInputImage(0, 1)
             instance_out.setImage(instance_img)
-            panoptic_out.setImage(panoptic_img)
 
         # Step progress bar:
         self.emitStepProgress()
@@ -137,8 +136,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
     def infer(self, img, graphics_output, numeric_output):
         outputs = self.predictor(img)
         h, w, c = np.shape(img)
-        panoptic_seg = torch.full((h, w), fill_value=-1)
-        instance_seg = torch.full((h, w), fill_value=-1)
+        instance_seg = torch.full((h, w), fill_value=0)
 
         if "instances" in outputs.keys():
             instances = outputs["instances"].to("cpu")
@@ -149,8 +147,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             nb_instance = 0
             for box, score, cls, mask in zip(boxes, scores, classes, masks):
                 if score >= self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST:
-                    nb_instance +=1
-                    panoptic_seg[mask] = cls+1
+                    nb_instance += 1
                     instance_seg[mask] = nb_instance
                     x1, y1, x2, y2 = box.numpy()
                     cls = int(cls.numpy())
@@ -182,8 +179,10 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
                     results.append(box_data)
                     numeric_output.addObjectMeasures(results)
 
-        return instance_seg.cpu().numpy(), panoptic_seg.cpu().numpy()
-
+        np.random.seed(10)
+        colors = [[0, 0, 0]] + [[int(c) for c in color] for color in
+                                np.random.choice(range(256), size=(nb_instance, 3))]
+        return instance_seg.cpu().numpy(), colors
 
         # Step progress bar:
         self.emitStepProgress()
