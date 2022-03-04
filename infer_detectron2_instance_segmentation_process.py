@@ -76,8 +76,6 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         self.addOutput(dataprocess.CGraphicsOutput())
         # Add numeric output
         self.addOutput(dataprocess.CBlobMeasureIO())
-        self.addOutput(dataprocess.CImageIO())
-        self.setOutputDataType(core.IODataType.IMAGE_LABEL, 4)
 
         # Create parameters class
         if param is None:
@@ -112,9 +110,9 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         # Get input :
         input = self.getInput(0)
         instance_out = self.getOutput(0)
-        outpout_img = self.getOutput(1)
         graphics_output = self.getOutput(2)
         numeric_output = self.getOutput(3)
+
         if input.isDataAvailable():
             img = input.getImage()
 
@@ -145,7 +143,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             classes = instances.pred_classes
             masks = instances.pred_masks
             nb_instance = 0
-            colors = [[0,0,0]]
+            colors = [[0, 0, 0]]
             np.random.seed(10)
             for box, score, cls, mask in zip(boxes, scores, classes, masks):
                 if score >= self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST:
