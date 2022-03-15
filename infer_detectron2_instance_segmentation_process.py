@@ -41,6 +41,9 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.conf_thres = 0.5
         self.cuda = True if torch.cuda.is_available() else False
         self.update = False
+        self.custom_train = False
+        self.cfg_path = ""
+        self.weights_path = ""
 
     def setParamMap(self, param_map):
         # Set parameters values from Ikomia application
@@ -48,6 +51,9 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.model_name = param_map["model_name"]
         self.conf_thres = float(param_map["conf_thres"])
         self.cuda = eval(param_map["cuda"])
+        self.custom_train = eval(param_map["custom_train"])
+        self.cfg_path = param_map["cfg_path"]
+        self.weights_path = param_map["weights_path"]
 
     def getParamMap(self):
         # Send parameters values to Ikomia application
@@ -56,6 +62,9 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         param_map["model_name"] = self.model_name
         param_map["conf_thres"] = str(self.conf_thres)
         param_map["cuda"] = str(self.cuda)
+        param_map["custom_train"] = str(self.custom_train)
+        param_map["cfg_path"] = self.cfg_path
+        param_map["weights_path"] = self.weights_path
         return param_map
 
 
@@ -70,6 +79,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         # Add input/output of the process here
         self.predictor = None
         self.cfg = None
+        self.class_names = None
         self.setOutputDataType(core.IODataType.IMAGE_LABEL, 0)
         self.addOutput(dataprocess.CImageIO())
         # Add graphics output
@@ -97,15 +107,27 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         # Get parameters :
         param = self.getParam()
         if self.predictor is None or param.update:
-            self.cfg = get_cfg()
-            config_path = os.path.join(os.path.dirname(detectron2.__file__), "model_zoo", "configs",
-                                       param.model_name + '.yaml')
-            self.cfg.merge_from_file(config_path)
-            self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
-            self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(param.model_name + '.yaml')
-            self.class_names = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]).get("thing_classes")
-            self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
-            self.predictor = DefaultPredictor(self.cfg)
+            if param.custom_train:
+                self.cfg = get_cfg()
+                # add entry to cfg to avoid exception when merging from file
+                self.cfg.CLASS_NAMES = None
+                self.cfg.merge_from_file(param.cfg_path)
+                self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
+                self.cfg.MODEL.WEIGHTS = param.weights_path
+                self.class_names = self.cfg.CLASS_NAMES
+                self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
+                self.predictor = DefaultPredictor(self.cfg)
+            else:
+                self.cfg = get_cfg()
+                config_path = os.path.join(os.path.dirname(detectron2.__file__), "model_zoo", "configs",
+                                           param.model_name + '.yaml')
+                self.cfg.merge_from_file(config_path)
+                self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
+                self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(param.model_name + '.yaml')
+                print(MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]).get("thing_classes"))
+                self.class_names = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]).get("thing_classes")
+                self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
+                self.predictor = DefaultPredictor(self.cfg)
             param.update = False
             print("Inference will run on " + ('cuda' if param.cuda else 'cpu'))
 
