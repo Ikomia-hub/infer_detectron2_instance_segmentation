@@ -7,9 +7,6 @@ import detectron2
 
 
 def test(t, data_dict):
-    plugins_folder = ikomia.ik_registry.getPluginsDirectory()
-    plugin_folder = os.path.join(plugins_folder, "Python", t.name)
-
     img = cv2.imread(data_dict["images"]["detection"]["text"])[::-1]
     input_img = t.getInput(0)
     input_img.setImage(img)
