@@ -26,6 +26,7 @@ from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
 import numpy as np
 import torch
+from distutils.util import strtobool
 
 
 # --------------------
@@ -54,6 +55,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.custom_train = eval(param_map["custom_train"])
         self.cfg_path = param_map["cfg_path"]
         self.weights_path = param_map["weights_path"]
+        self.update = strtobool(param_map["update"])
 
     def getParamMap(self):
         # Send parameters values to Ikomia application
@@ -65,6 +67,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         param_map["custom_train"] = str(self.custom_train)
         param_map["cfg_path"] = self.cfg_path
         param_map["weights_path"] = self.weights_path
+        param_map["update"] = str(self.update)
         return param_map
 
 
