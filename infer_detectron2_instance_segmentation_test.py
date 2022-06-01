@@ -16,7 +16,6 @@ def test(t, data_dict):
 
     config_paths = os.path.dirname(detectron2.__file__) + "/model_zoo"
 
-    available_cfg = []
     for root, dirs, files in os.walk(config_paths, topdown=False):
         for name in files:
             file_path = os.path.join(root, name)
