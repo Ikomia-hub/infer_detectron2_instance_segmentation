@@ -124,7 +124,6 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
                 self.cfg.merge_from_file(config_path)
                 self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
                 self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(param.model_name + '.yaml')
-                print(MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]).get("thing_classes"))
                 self.class_names = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]).get("thing_classes")
                 self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
                 self.predictor = DefaultPredictor(self.cfg)
