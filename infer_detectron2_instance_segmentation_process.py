@@ -93,7 +93,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         else:
             self.setParam(copy.deepcopy(param))
 
-    def getProgressSteps(self, eltCount=1):
+    def getProgressSteps(self):
         # Function returning the number of progress steps for this process
         # This is handled by the main progress bar of Ikomia application
         return 1
