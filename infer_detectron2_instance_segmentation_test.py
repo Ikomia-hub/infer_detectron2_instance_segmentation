@@ -7,7 +7,7 @@ import detectron2
 
 
 def test(t, data_dict):
-    img = cv2.imread(data_dict["images"]["detection"]["text"])[::-1]
+    img = cv2.imread(data_dict["images"]["detection"]["coco"])[::-1]
     input_img = t.getInput(0)
     input_img.setImage(img)
 
