@@ -17,10 +17,11 @@ def test(t, data_dict):
         for name in files:
             file_path = os.path.join(root, name)
             possible_cfg = os.path.join(*file_path.split('/')[-2:])
-            if "InstanceSegmentation" in possible_cfg or "Cityscapes" in possible_cfg and possible_cfg.endswith(
+            if ("InstanceSegmentation" in possible_cfg or "Cityscapes" in possible_cfg) and possible_cfg.endswith(
                     '.yaml'):
                 params = task.get_parameters(t)
                 params["model_name"] = possible_cfg.replace('.yaml', '')
+                print(params["model_name"])
                 # without update = 1, model is not updated between 2 test
                 params["update"] = 1
                 task.set_parameters(t, params)
