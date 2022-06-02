@@ -21,7 +21,6 @@ def test(t, data_dict):
                     '.yaml'):
                 params = task.get_parameters(t)
                 params["model_name"] = possible_cfg.replace('.yaml', '')
-                print(params["model_name"])
                 # without update = 1, model is not updated between 2 test
                 params["update"] = 1
                 task.set_parameters(t, params)
