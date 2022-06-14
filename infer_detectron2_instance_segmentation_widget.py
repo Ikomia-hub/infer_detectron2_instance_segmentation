@@ -23,6 +23,7 @@ from infer_detectron2_instance_segmentation.infer_detectron2_instance_segmentati
 # PyQt GUI framework
 from PyQt5.QtWidgets import *
 import detectron2
+from detectron2 import model_zoo
 import os
 
 
@@ -50,7 +51,11 @@ class InferDetectron2InstanceSegmentationWidget(core.CWorkflowTaskWidget):
                 file_path = os.path.join(root, name)
                 possible_cfg = os.path.join(*file_path.split('/')[-2:])
                 if ("InstanceSegmentation" in possible_cfg or "Cityscapes" in possible_cfg) and possible_cfg.endswith('.yaml'):
-                    available_cfg.append(possible_cfg.replace('.yaml', ''))
+                    try:
+                        model_zoo.get_checkpoint_url(possible_cfg)
+                        available_cfg.append(possible_cfg.replace('.yaml', ''))
+                    except:
+                        pass
         self.combo_model = pyqtutils.append_combo(self.gridLayout, "Model Name")
         for model_name in available_cfg:
             self.combo_model.addItem(model_name)
