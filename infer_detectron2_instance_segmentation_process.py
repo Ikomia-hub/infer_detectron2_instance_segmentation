@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from infer_detectron2_instance_segmentation import update_path
 from ikomia import core, dataprocess
 import copy
 import os
@@ -228,7 +229,7 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         self.info.description = "Infer Detectron2 instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Segmentation"
-        self.info.version = "1.0.1"
+        self.info.version = "1.0.2"
         self.info.iconPath = "icons/detectron2.png"
         self.info.authors = "Yuxin Wu, Alexander Kirillov, Francisco Massa, Wan-Yen Lo, Ross Girshick"
         self.info.article = "Detectron2"
