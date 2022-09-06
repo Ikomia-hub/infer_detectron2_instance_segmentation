@@ -1,2 +1,1 @@
-git+https://github.com/Ikomia-dev/detectron2.git@v0.6-win10; sys_platform == 'win32'
-git+https://github.com/facebookresearch/detectron2.git@v0.6; sys_platform != 'win32'
+git+https://github.com/Ikomia-dev/detectron2.git@v0.6-win10
