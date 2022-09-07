@@ -84,12 +84,8 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         self.predictor = None
         self.cfg = None
         self.class_names = None
-        self.setOutputDataType(core.IODataType.IMAGE_LABEL, 0)
-        self.addOutput(dataprocess.CImageIO())
-        # Add graphics output
-        self.addOutput(dataprocess.CGraphicsOutput())
-        # Add numeric output
-        self.addOutput(dataprocess.CBlobMeasureIO())
+        # Add instance segmentation output
+        self.addOutput(dataprocess.CInstanceSegIO())
 
         # Create parameters class
         if param is None:
@@ -106,7 +102,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         # Core function of your process
         # Call beginTaskRun for initialization
         self.beginTaskRun()
-        self.forwardInputImage(0, 1)
+        self.forwardInputImage(0, 0)
 
         # Get parameters :
         param = self.getParam()
@@ -131,26 +127,21 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
                 self.class_names = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]).get("thing_classes")
                 self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
                 self.predictor = DefaultPredictor(self.cfg)
+
             param.update = False
             print("Inference will run on " + ('cuda' if param.cuda else 'cpu'))
 
         # Get input :
-        input = self.getInput(0)
-        instance_out = self.getOutput(0)
-        graphics_output = self.getOutput(2)
-        numeric_output = self.getOutput(3)
+        img_input = self.getInput(0)
+        instance_out = self.getOutput(1)
 
-        if input.isDataAvailable():
-            img = input.getImage()
-
-            graphics_output.setNewLayer("Detectron2_Instance_Segmentation")
-            graphics_output.setImageIndex(1)
-            numeric_output.clearData()
-
-            instance_img, colors = self.infer(img, graphics_output, numeric_output)
-            self.setOutputColorMap(1, 0, colors)
-            self.forwardInputImage(0, 1)
-            instance_out.setImage(instance_img)
+        if img_input.isDataAvailable():
+            img = img_input.getImage()
+            h, w, c = np.shape(img)
+            instance_out.init("Detectron2_Instance_Segmentation", 0, w, h)
+            colors = self.infer(img, instance_out)
+            self.setOutputColorMap(0, 1, colors)
+            self.forwardInputImage(0, 0)
 
         # Step progress bar:
         self.emitStepProgress()
@@ -158,10 +149,8 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
         # Call endTaskRun to finalize process
         self.endTaskRun()
 
-    def infer(self, img, graphics_output, numeric_output):
+    def infer(self, img, instance_out):
         outputs = self.predictor(img)
-        h, w, c = np.shape(img)
-        instance_seg = torch.full((h, w), fill_value=0)
 
         if "instances" in outputs.keys():
             instances = outputs["instances"].to("cpu")
@@ -169,44 +158,23 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             boxes = instances.pred_boxes
             classes = instances.pred_classes
             masks = instances.pred_masks
-            nb_instance = 0
-            colors = [[0, 0, 0]]
+
             np.random.seed(10)
+            colors = [[0, 0, 0]] * 256
+            for i in range(min(255, len(self.class_names))):
+                colors[i+1] = [int(c) for c in np.random.choice(range(256), size=3)]
+
             for box, score, cls, mask in zip(boxes, scores, classes, masks):
                 if score >= self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST:
-                    colors.append([int(c) for c in np.random.choice(range(256), size=3)])
-                    nb_instance += 1
-                    instance_seg[mask] = nb_instance
                     x1, y1, x2, y2 = box.numpy()
                     cls = int(cls.numpy())
                     w = float(x2 - x1)
                     h = float(y2 - y1)
-                    prop_rect = core.GraphicsRectProperty()
-                    prop_rect.pen_color = colors[-1]
-                    graphics_box = graphics_output.addRectangle(float(x1), float(y1), w, h, prop_rect)
-                    graphics_box.setCategory(self.class_names[cls])
-                    # Label
-                    name = self.class_names[int(cls)]
-                    prop_text = core.GraphicsTextProperty()
-                    prop_text.font_size = 8
-                    prop_text.color = [c//2 for c in colors[-1]]
-                    graphics_output.addText(name, float(x1), float(y1), prop_text)
-                    # Object results
-                    results = []
-                    confidence_data = dataprocess.CObjectMeasure(
-                        dataprocess.CMeasure(core.MeasureId.CUSTOM, "Confidence"),
-                        float(score),
-                        graphics_box.getId(),
-                        name)
-                    box_data = dataprocess.CObjectMeasure(
-                        dataprocess.CMeasure(core.MeasureId.BBOX),
-                        graphics_box.getBoundingRect(),
-                        graphics_box.getId(),
-                        name)
-                    results.append(confidence_data)
-                    results.append(box_data)
-                    numeric_output.addObjectMeasures(results)
-        return instance_seg.cpu().numpy(), colors
+                    instance_out.addInstance(cls, self.class_names[cls], float(score),
+                                             float(x1), float(y1), w, h,
+                                             mask.cpu().numpy().astype("uint8"), colors[cls+1])
+
+        return colors
 
         # Step progress bar:
         self.emitStepProgress()
@@ -229,7 +197,7 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         self.info.description = "Infer Detectron2 instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Segmentation"
-        self.info.version = "1.0.2"
+        self.info.version = "1.1.0"
         self.info.iconPath = "icons/detectron2.png"
         self.info.authors = "Yuxin Wu, Alexander Kirillov, Francisco Massa, Wan-Yen Lo, Ross Girshick"
         self.info.article = "Detectron2"
