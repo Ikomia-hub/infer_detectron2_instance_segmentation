@@ -170,7 +170,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
                     cls = int(cls.numpy())
                     w = float(x2 - x1)
                     h = float(y2 - y1)
-                    instance_out.addInstance(cls, self.class_names[cls], float(score),
+                    instance_out.addInstance(0, cls, self.class_names[cls], float(score),
                                              float(x1), float(y1), w, h,
                                              mask.cpu().numpy().astype("uint8"), colors[cls+1])
 
