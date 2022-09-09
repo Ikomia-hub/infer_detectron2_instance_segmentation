@@ -164,15 +164,17 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             for i in range(min(255, len(self.class_names))):
                 colors[i+1] = [int(c) for c in np.random.choice(range(256), size=3)]
 
+            index = 0
             for box, score, cls, mask in zip(boxes, scores, classes, masks):
                 if score >= self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST:
                     x1, y1, x2, y2 = box.numpy()
                     cls = int(cls.numpy())
                     w = float(x2 - x1)
                     h = float(y2 - y1)
-                    instance_out.addInstance(0, cls, self.class_names[cls], float(score),
+                    instance_out.addInstance(index, 0, cls, self.class_names[cls], float(score),
                                              float(x1), float(y1), w, h,
                                              mask.cpu().numpy().astype("uint8"), colors[cls+1])
+                index += 1
 
         return colors
 
