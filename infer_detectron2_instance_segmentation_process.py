@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from infer_detectron2_instance_segmentation import update_path
-from ikomia import core, dataprocess
+from ikomia import utils, core, dataprocess
 import copy
 import os
 import detectron2
@@ -27,7 +27,6 @@ from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
 import numpy as np
 import torch
-from distutils.util import strtobool
 
 
 # --------------------
@@ -56,7 +55,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.custom_train = eval(param_map["custom_train"])
         self.cfg_path = param_map["cfg_path"]
         self.weights_path = param_map["weights_path"]
-        self.update = strtobool(param_map["update"])
+        self.update = utils.strtobool(param_map["update"])
 
     def getParamMap(self):
         # Send parameters values to Ikomia application
