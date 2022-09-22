@@ -159,9 +159,9 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             masks = instances.pred_masks
 
             np.random.seed(10)
-            colors = [[0, 0, 0]] * 256
-            for i in range(min(255, len(self.class_names))):
-                colors[i+1] = [int(c) for c in np.random.choice(range(256), size=3)]
+            colors = [[0, 0, 0]]
+            for i in range(len(self.class_names)):
+                colors.append([int(c) for c in np.random.choice(range(256), size=3)])
 
             index = 0
             for box, score, cls, mask in zip(boxes, scores, classes, masks):
