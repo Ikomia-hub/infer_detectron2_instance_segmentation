@@ -77,13 +77,13 @@ class InferDetectron2InstanceSegmentationWidget(core.CWorkflowTaskWidget):
         layout_ptr = qtconversion.PyQtToQt(self.gridLayout)
 
         # Set widget layout
-        self.setLayout(layout_ptr)
+        self.set_layout(layout_ptr)
 
     def on_check(self, int):
         self.browse_cfg.setEnabled(self.check_custom.isChecked())
         self.browse_weights.setEnabled(self.check_custom.isChecked())
 
-    def onApply(self):
+    def on_apply(self):
         # Apply button clicked slot
 
         # Get parameters from widget
@@ -95,7 +95,7 @@ class InferDetectron2InstanceSegmentationWidget(core.CWorkflowTaskWidget):
         self.parameters.cfg_path = self.browse_cfg.path
         self.parameters.weights_path = self.browse_weights.path
         # Send signal to launch the process
-        self.emitApply(self.parameters)
+        self.emit_apply(self.parameters)
 
 
 # --------------------

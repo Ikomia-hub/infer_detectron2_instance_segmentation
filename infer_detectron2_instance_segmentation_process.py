@@ -46,7 +46,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.cfg_path = ""
         self.weights_path = ""
 
-    def setParamMap(self, param_map):
+    def set_values(self, param_map):
         # Set parameters values from Ikomia application
         # Parameters values are stored as string and accessible like a python dict
         self.model_name = param_map["model_name"]
@@ -57,10 +57,10 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.weights_path = param_map["weights_path"]
         self.update = utils.strtobool(param_map["update"])
 
-    def getParamMap(self):
+    def get_values(self):
         # Send parameters values to Ikomia application
         # Create the specific dict structure (string container)
-        param_map = core.ParamMap()
+        param_map = {}
         param_map["model_name"] = self.model_name
         param_map["conf_thres"] = str(self.conf_thres)
         param_map["cuda"] = str(self.cuda)
@@ -75,36 +75,36 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
 # - Class which implements the process
 # - Inherits PyCore.CWorkflowTask or derived from Ikomia API
 # --------------------
-class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
+class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask):
 
     def __init__(self, name, param):
-        dataprocess.C2dImageTask.__init__(self, name)
+        dataprocess.CInstanceSegmentationTask.__init__(self, name)
         # Add input/output of the process here
         self.predictor = None
         self.cfg = None
         self.class_names = None
         # Add instance segmentation output
-        self.addOutput(dataprocess.CInstanceSegIO())
+        #self.add_output(dataprocess.CInstanceSegIO())
 
         # Create parameters class
         if param is None:
-            self.setParam(InferDetectron2InstanceSegmentationParam())
+            self.set_param_object(InferDetectron2InstanceSegmentationParam())
         else:
-            self.setParam(copy.deepcopy(param))
+            self.set_param_object(copy.deepcopy(param))
 
-    def getProgressSteps(self):
+    def get_progress_steps(self):
         # Function returning the number of progress steps for this process
         # This is handled by the main progress bar of Ikomia application
         return 1
 
     def run(self):
         # Core function of your process
-        # Call beginTaskRun for initialization
-        self.beginTaskRun()
-        self.forwardInputImage(0, 0)
+        # Call begin_task_run for initialization
+        self.begin_task_run()
+        self.forward_input_image(0, 0)
 
         # Get parameters :
-        param = self.getParam()
+        param = self.get_param_object()
         if self.predictor is None or param.update:
             if param.custom_train:
                 self.cfg = get_cfg()
@@ -130,23 +130,21 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
             param.update = False
             print("Inference will run on " + ('cuda' if param.cuda else 'cpu'))
 
+        self.set_names(self.class_names)
         # Get input :
-        img_input = self.getInput(0)
-        instance_out = self.getOutput(1)
+        img_input = self.get_input(0)
+        instance_out = self.get_output(1)
 
-        if img_input.isDataAvailable():
-            img = img_input.getImage()
-            h, w, c = np.shape(img)
-            instance_out.init("Detectron2_Instance_Segmentation", 0, w, h)
+        if img_input.is_data_available():
+            img = img_input.get_image()
             colors = self.infer(img, instance_out)
-            self.setOutputColorMap(0, 1, colors)
-            self.forwardInputImage(0, 0)
+            self.forward_input_image(0, 0)
 
         # Step progress bar:
-        self.emitStepProgress()
+        self.emit_step_progress()
 
-        # Call endTaskRun to finalize process
-        self.endTaskRun()
+        # Call end_task_run to finalize process
+        self.end_task_run()
 
     def infer(self, img, instance_out):
         outputs = self.predictor(img)
@@ -170,18 +168,12 @@ class InferDetectron2InstanceSegmentation(dataprocess.C2dImageTask):
                     cls = int(cls.numpy())
                     w = float(x2 - x1)
                     h = float(y2 - y1)
-                    instance_out.addInstance(index, 0, cls, self.class_names[cls], float(score),
+                    self.add_instance(index, 0, cls, float(score),
                                              float(x1), float(y1), w, h,
-                                             mask.cpu().numpy().astype("uint8"), colors[cls+1])
+                                             mask.cpu().numpy().astype("uint8"))
                 index += 1
 
         return colors
-
-        # Step progress bar:
-        self.emitStepProgress()
-
-        # Call endTaskRun to finalize process
-        self.endTaskRun()
 
 
 # --------------------
@@ -194,19 +186,19 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         dataprocess.CTaskFactory.__init__(self)
         # Set process information as string here
         self.info.name = "infer_detectron2_instance_segmentation"
-        self.info.shortDescription = "Infer Detectron2 instance segmentation models"
+        self.info.short_description = "Infer Detectron2 instance segmentation models"
         self.info.description = "Infer Detectron2 instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Segmentation"
         self.info.version = "1.1.1"
-        self.info.iconPath = "icons/detectron2.png"
+        self.info.icon_path = "icons/detectron2.png"
         self.info.authors = "Yuxin Wu, Alexander Kirillov, Francisco Massa, Wan-Yen Lo, Ross Girshick"
         self.info.article = "Detectron2"
         self.info.journal = ""
         self.info.year = 2019
         self.info.license = "Apache License 2.0"
         # URL of documentation
-        self.info.documentationLink = "https://detectron2.readthedocs.io/en/latest/"
+        self.info.documentation_link = "https://detectron2.readthedocs.io/en/latest/"
         # Code source repository
         self.info.repository = "https://github.com/facebookresearch/detectron2"
         # Keywords used for search
