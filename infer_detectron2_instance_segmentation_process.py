@@ -60,14 +60,15 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
     def get_values(self):
         # Send parameters values to Ikomia application
         # Create the specific dict structure (string container)
-        param_map = {}
-        param_map["model_name"] = self.model_name
-        param_map["conf_thres"] = str(self.conf_thres)
-        param_map["cuda"] = str(self.cuda)
-        param_map["custom_train"] = str(self.custom_train)
-        param_map["cfg_path"] = self.cfg_path
-        param_map["weights_path"] = self.weights_path
-        param_map["update"] = str(self.update)
+        param_map = {
+            "model_name": self.model_name,
+            "conf_thres": str(self.conf_thres),
+            "cuda": str(self.cuda),
+            "custom_train": str(self.custom_train),
+            "cfg_path": self.cfg_path,
+            "weights_path": self.weights_path,
+            "update": str(self.update)
+            }
         return param_map
 
 
