@@ -65,11 +65,11 @@ class InferDetectron2InstanceSegmentationWidget(core.CWorkflowTaskWidget):
                                                               self.parameters.conf_thres, min=0., max=1., step=1e-2)
         self.check_cuda = pyqtutils.append_check(self.gridLayout, "Cuda", self.parameters.cuda)
         self.check_custom = pyqtutils.append_check(self.gridLayout, "Load trained model with Ikomia",
-                                                   self.parameters.custom_train)
+                                                   self.parameters.use_custom_model)
         self.browse_cfg = pyqtutils.append_browse_file(self.gridLayout, "Browse config file (.yaml)",
-                                                       self.parameters.cfg_path)
+                                                       self.parameters.config)
         self.browse_weights = pyqtutils.append_browse_file(self.gridLayout, "Browse weights file (.pth)",
-                                                           self.parameters.weights_path)
+                                                           self.parameters.model_path)
         self.browse_cfg.setEnabled(self.check_custom.isChecked())
         self.browse_weights.setEnabled(self.check_custom.isChecked())
         self.check_custom.stateChanged.connect(self.on_check)
@@ -91,9 +91,9 @@ class InferDetectron2InstanceSegmentationWidget(core.CWorkflowTaskWidget):
         self.parameters.conf_thres = self.double_spin_thres.value()
         self.parameters.update = True
         self.parameters.cuda = self.check_cuda.isChecked()
-        self.parameters.custom_train = self.check_custom.isChecked()
-        self.parameters.cfg_path = self.browse_cfg.path
-        self.parameters.weights_path = self.browse_weights.path
+        self.parameters.use_custom_model = self.check_custom.isChecked()
+        self.parameters.config = self.browse_cfg.path
+        self.parameters.model_path = self.browse_weights.path
         # Send signal to launch the process
         self.emit_apply(self.parameters)
 
