@@ -182,9 +182,8 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
                     cls = int(cls.numpy())
                     w = float(x2 - x1)
                     h = float(y2 - y1)
-                    self.add_instance(index, 0, cls, float(score),
-                                             float(x1), float(y1), w, h,
-                                             mask.cpu().numpy().astype("uint8"))
+                    self.add_object(index, 0, cls, float(score), float(x1), float(y1), w, h,
+                                    mask.cpu().numpy().astype("uint8"))
                 index += 1
 
         return colors
