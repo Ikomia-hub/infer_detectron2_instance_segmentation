@@ -44,7 +44,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.cuda = True if torch.cuda.is_available() else False
         self.update = False
         self.use_custom_model = False
-        self.config = ""
+        self.config_file = ""
         self.model_path = ""
 
     def set_values(self, param_map):
@@ -55,7 +55,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.conf_thres = float(param_map["conf_thres"])
         self.cuda = eval(param_map["cuda"])
         self.use_custom_model = eval(param_map["use_custom_model"])
-        self.config = param_map["config"]
+        self.config_file = param_map["config_file"]
         self.model_path = param_map["model_path"]
         self.update = utils.strtobool(param_map["update"])
 
@@ -68,7 +68,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
             "conf_thres": str(self.conf_thres),
             "cuda": str(self.cuda),
             "use_custom_model": str(self.use_custom_model),
-            "config": self.config,
+            "config_file": self.config_file,
             "model_path": self.model_path,
             "update": str(self.update)
             }
@@ -124,7 +124,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
                 self.cfg = get_cfg()
                 # add entry to cfg to avoid exception when merging from file
                 self.cfg.CLASS_NAMES = None
-                self.cfg.merge_from_file(param.config)
+                self.cfg.merge_from_file(param.config_file)
                 self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
                 self.cfg.MODEL.WEIGHTS = param.model_path
                 self.class_names = self.cfg.CLASS_NAMES

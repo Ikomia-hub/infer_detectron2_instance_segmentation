@@ -67,7 +67,7 @@ class InferDetectron2InstanceSegmentationWidget(core.CWorkflowTaskWidget):
         self.check_custom = pyqtutils.append_check(self.gridLayout, "Load trained model with Ikomia",
                                                    self.parameters.use_custom_model)
         self.browse_cfg = pyqtutils.append_browse_file(self.gridLayout, "Browse config file (.yaml)",
-                                                       self.parameters.config)
+                                                       self.parameters.config_file)
         self.browse_weights = pyqtutils.append_browse_file(self.gridLayout, "Browse weights file (.pth)",
                                                            self.parameters.model_path)
         self.browse_cfg.setEnabled(self.check_custom.isChecked())
@@ -92,7 +92,7 @@ class InferDetectron2InstanceSegmentationWidget(core.CWorkflowTaskWidget):
         self.parameters.update = True
         self.parameters.cuda = self.check_cuda.isChecked()
         self.parameters.use_custom_model = self.check_custom.isChecked()
-        self.parameters.config = self.browse_cfg.path
+        self.parameters.config_file = self.browse_cfg.path
         self.parameters.model_path = self.browse_weights.path
         # Send signal to launch the process
         self.emit_apply(self.parameters)
