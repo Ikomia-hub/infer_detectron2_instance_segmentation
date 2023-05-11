@@ -38,7 +38,6 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
     def __init__(self):
         core.CWorkflowTaskParam.__init__(self)
         # Place default value initialization here
-        self.model_name_or_path = ""
         self.model_name = "COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x"
         self.conf_thres = 0.5
         self.cuda = True if torch.cuda.is_available() else False
@@ -50,7 +49,6 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
     def set_values(self, param_map):
         # Set parameters values from Ikomia application
         # Parameters values are stored as string and accessible like a python dict
-        self.model_name_or_path = param_map["model_name_or_path"]
         self.model_name = param_map["model_name"]
         self.conf_thres = float(param_map["conf_thres"])
         self.cuda = eval(param_map["cuda"])
@@ -63,7 +61,6 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         # Send parameters values to Ikomia application
         # Create the specific dict structure (string container)
         param_map = {
-            "model_name_or_path": str(self.model_name_or_path),
             "model_name": self.model_name,
             "conf_thres": str(self.conf_thres),
             "cuda": str(self.cuda),
