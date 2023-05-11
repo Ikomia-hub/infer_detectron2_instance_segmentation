@@ -45,7 +45,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.update = False
         self.use_custom_model = False
         self.config_file = ""
-        self.model_path = ""
+        self.model_weight_file = ""
 
     def set_values(self, param_map):
         # Set parameters values from Ikomia application
@@ -56,7 +56,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
         self.cuda = eval(param_map["cuda"])
         self.use_custom_model = eval(param_map["use_custom_model"])
         self.config_file = param_map["config_file"]
-        self.model_path = param_map["model_path"]
+        self.model_weight_file = param_map["model_weight_file"]
         self.update = utils.strtobool(param_map["update"])
 
     def get_values(self):
@@ -69,7 +69,7 @@ class InferDetectron2InstanceSegmentationParam(core.CWorkflowTaskParam):
             "cuda": str(self.cuda),
             "use_custom_model": str(self.use_custom_model),
             "config_file": self.config_file,
-            "model_path": self.model_path,
+            "model_weight_file": self.model_weight_file,
             "update": str(self.update)
             }
         return param_map
@@ -110,15 +110,9 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
         # Get parameters :
         param = self.get_param_object()
         if self.predictor is None or param.update:
-            if param.model_path != "":
-                if os.path.isfile(param.model_path):
+            if param.model_weight_file != "":
+                if os.path.isfile(param.model_weight_file):
                     param.use_custom_model = True
-            if param.model_name_or_path != "":
-                if os.path.isfile(param.model_name_or_path):
-                    param.use_custom_model = True
-                    param.model_path = param.model_name_or_path
-                else:
-                    param.model_name = param.model_name_or_path
 
             if param.use_custom_model:
                 self.cfg = get_cfg()
@@ -126,7 +120,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
                 self.cfg.CLASS_NAMES = None
                 self.cfg.merge_from_file(param.config_file)
                 self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
-                self.cfg.MODEL.WEIGHTS = param.model_path
+                self.cfg.MODEL.WEIGHTS = param.model_weight_file
                 self.class_names = self.cfg.CLASS_NAMES
                 self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
                 self.predictor = DefaultPredictor(self.cfg)
