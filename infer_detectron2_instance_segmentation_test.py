@@ -1,4 +1,3 @@
-from ikomia.core import task, ParamMap
 import os
 import cv2
 import detectron2
@@ -23,11 +22,11 @@ def test(t, data_dict):
                     model_zoo.get_checkpoint_url(possible_cfg)
                 except RuntimeError:
                     continue
-                params = task.get_parameters(t)
+                params = t.get_parameters()
                 params["model_name"] = possible_cfg.replace('.yaml', '')
                 # without update = 1, model is not updated between 2 test
-                params["update"] = 1
-                task.set_parameters(t, params)
+                params["update"] = "1"
+                t.set_parameters(params)
                 yield run_for_test(t)
 
 
