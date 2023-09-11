@@ -19,10 +19,9 @@
     </a> 
 </p>
 
-Infer Detectron2 instance segmentation models
+Run Detectron2 instance segmentation models. It can detect and segment objects in image.
 
-[Insert illustrative image here. Image must be accessible publicly, in algorithm Github repository for example.
-<img src="images/illustration.png"  alt="Illustrative image" width="30%" height="30%">]
+![Example](https://miro.medium.com/v2/resize:fit:2000/format:webp/1*G5EsdDTv9-5kqK0hu9fIJw.png)
 
 ## :rocket: Use with Ikomia API
 
@@ -39,8 +38,8 @@ pip install ikomia
 [Change the sample image URL to fit algorithm purpose]
 
 ```python
-import ikomia
 from ikomia.dataprocess.workflow import Workflow
+from ikomia.utils.displayIO import display
 
 # Init your workflow
 wf = Workflow()
@@ -48,8 +47,11 @@ wf = Workflow()
 # Add algorithm
 algo = wf.add_task(name="infer_detectron2_instance_segmentation", auto_connect=True)
 
-# Run on your image  
-wf.run_on(url="example_image.png")
+# Run on your image
+wf.run_on(url="https://cdn.nba.com/teams/legacy/www.nba.com/bulls/sites/bulls/files/jordan_vs_indiana.jpg")
+
+# Display the results
+display(algo.get_image_with_mask_and_graphics())
 ```
 
 ## :sunny: Use with Ikomia Studio
@@ -62,13 +64,32 @@ Ikomia Studio offers a friendly UI with the same features as the API.
 
 ## :pencil: Set algorithm parameters
 
-[Explain each algorithm parameters]
+- **model_name** (str) - Default "COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x": Name of the pretrained model. 
+Should be one of:
+  - COCO-InstanceSegmentation/mask_rcnn_R_101_DC5_3x
+  - COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x
+  - COCO-InstanceSegmentation/mask_rcnn_R_101_C4_3x
+  - COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x
+  - COCO-InstanceSegmentation/mask_rcnn_R_50_C4_1x
+  - COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x
+  - COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_1x
+  - COCO-InstanceSegmentation/mask_rcnn_R_50_DC5_3x
+  - COCO-InstanceSegmentation/mask_rcnn_R_50_C4_3x
+  - COCO-InstanceSegmentation/mask_rcnn_R_50_DC5_1x
+  - LVISv0.5-InstanceSegmentation/mask_rcnn_R_101_FPN_1x
+  - LVISv0.5-InstanceSegmentation/mask_rcnn_R_50_FPN_1x
+  - LVISv0.5-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_1x
+  - Cityscapes/mask_rcnn_R_50_FPN
+- **conf_thres** (float) - Default 0.5: Box threshold for the prediction [0,1].
+- **cuda** (bool) - Default True: If True, CUDA-based inference (GPU). If False, run on CPU.
+- **config_file** (str): Path to the .yaml config file. Overwrite model_name if both are provided.
+- **model_weight_file** (str): Path to the .pth weight file. Overwrite model_name if both are provided.
 
-[Change the sample image URL to fit algorithm purpose]
+*Note*: parameter key and value should be in **string format** when added to the dictionary.
 
 ```python
-import ikomia
 from ikomia.dataprocess.workflow import Workflow
+from ikomia.utils.displayIO import display
 
 # Init your workflow
 wf = Workflow()
@@ -76,15 +97,16 @@ wf = Workflow()
 # Add algorithm
 algo = wf.add_task(name="infer_detectron2_instance_segmentation", auto_connect=True)
 
+# Set parameters
 algo.set_parameters({
-    "param1": "value1",
-    "param2": "value2",
-    ...
+    "model_name": "COCO-InstanceSegmentation/mask_rcnn_R_50_C4_1x",
 })
 
-# Run on your image  
-wf.run_on(url="example_image.png")
+# Run on your image
+wf.run_on(url="https://cdn.nba.com/teams/legacy/www.nba.com/bulls/sites/bulls/files/jordan_vs_indiana.jpg")
 
+# Display the results
+display(algo.get_image_with_mask_and_graphics())
 ```
 
 ## :mag: Explore algorithm outputs
@@ -111,7 +133,3 @@ for output in algo.get_outputs()
     # Export it to JSON
     output.to_json()
 ```
-
-## :fast_forward: Advanced usage 
-
-[optional]
