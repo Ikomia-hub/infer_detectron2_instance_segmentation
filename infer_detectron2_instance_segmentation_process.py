@@ -149,6 +149,8 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
             colors = self.infer(img, instance_out)
             self.forward_input_image(0, 0)
 
+        os.environ.pop("FVCORE_CACHE")
+
         # Step progress bar:
         self.emit_step_progress()
 
@@ -198,7 +200,7 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         self.info.description = "Infer Detectron2 instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Segmentation"
-        self.info.version = "1.2.0"
+        self.info.version = "1.3.0"
         self.info.icon_path = "icons/detectron2.png"
         self.info.authors = "Yuxin Wu, Alexander Kirillov, Francisco Massa, Wan-Yen Lo, Ross Girshick"
         self.info.article = "Detectron2"
