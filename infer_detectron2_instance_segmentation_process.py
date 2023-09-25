@@ -123,7 +123,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
                 self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
                 self.cfg.MODEL.WEIGHTS = param.model_weight_file
                 self.class_names = self.cfg.CLASS_NAMES
-                self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
+                self.cfg.MODEL.DEVICE = 'cuda' if param.cuda and torch.cuda.is_available() else 'cpu'
                 self.predictor = DefaultPredictor(self.cfg)
             else:
                 self.cfg = get_cfg()
@@ -133,7 +133,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
                 self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = param.conf_thres
                 self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url((param.model_name + '.yaml').replace('\\', '/'))
                 self.class_names = MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]).get("thing_classes")
-                self.cfg.MODEL.DEVICE = 'cuda' if param.cuda else 'cpu'
+                self.cfg.MODEL.DEVICE = 'cuda' if param.cuda and torch.cuda.is_available() else 'cpu'
                 self.predictor = DefaultPredictor(self.cfg)
 
             param.update = False
