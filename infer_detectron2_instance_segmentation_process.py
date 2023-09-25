@@ -137,7 +137,7 @@ class InferDetectron2InstanceSegmentation(dataprocess.CInstanceSegmentationTask)
                 self.predictor = DefaultPredictor(self.cfg)
 
             param.update = False
-            print("Inference will run on " + ('cuda' if param.cuda else 'cpu'))
+            print("Inference will run on " + self.cfg.MODEL.DEVICE)
 
         self.set_names(self.class_names)
         # Get input :
