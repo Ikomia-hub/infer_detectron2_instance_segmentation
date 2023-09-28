@@ -197,7 +197,6 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         # Set process information as string here
         self.info.name = "infer_detectron2_instance_segmentation"
         self.info.short_description = "Infer Detectron2 instance segmentation models"
-        self.info.description = "Infer Detectron2 instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Segmentation"
         self.info.version = "1.3.0"
@@ -210,7 +209,8 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         # URL of documentation
         self.info.documentation_link = "https://detectron2.readthedocs.io/en/latest/"
         # Code source repository
-        self.info.repository = "https://github.com/facebookresearch/detectron2"
+        self.info.repository = "https://github.com/Ikomia-hub/infer_detectron2_instance_segmentation"
+        self.info.original_repository = "https://github.com/facebookresearch/detectron2"
         # Keywords used for search
         self.info.keywords = "infer, detectron2, instance, segmentation"
 
