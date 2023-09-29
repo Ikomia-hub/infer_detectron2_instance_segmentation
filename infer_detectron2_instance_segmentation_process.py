@@ -213,6 +213,8 @@ class InferDetectron2InstanceSegmentationFactory(dataprocess.CTaskFactory):
         self.info.original_repository = "https://github.com/facebookresearch/detectron2"
         # Keywords used for search
         self.info.keywords = "infer, detectron2, instance, segmentation"
+        self.info.algo_type = core.AlgoType.INFER
+        self.info.algo_tasks = "INSTANCE_SEGMENTATION"
 
     def create(self, param=None):
         # Create process object
